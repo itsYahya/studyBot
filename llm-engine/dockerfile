@@ -1,3 +1,11 @@
 FROM debian:latest
 
-CMD [ "sleep", "99999999" ]
+WORKDIR /app
+
+COPY ./conf .
+
+RUN chmod +x ./install.sh
+
+RUN chmod +x ./script.sh
+
+ENTRYPOINT [ "./script.sh" ]
