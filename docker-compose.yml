@@ -1,0 +1,15 @@
+services:
+  llm:
+    build: ./llm-engine
+    container_name: "llm"
+    networks:
+      - default-net
+    volumes:
+      - './llm-engine/data:/data'
+
+networks:
+  default-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.190.128.0/24
