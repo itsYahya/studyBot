@@ -1,0 +1,11 @@
+FROM python:3
+
+WORKDIR /app
+
+COPY ./conf .
+
+COPY ./src api
+
+RUN chmod +x ./script.sh
+
+CMD [ "./script.sh" ]
