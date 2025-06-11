@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
-from utils.parser import parse_file
+from utils import parser
 
 app = FastAPI()
 
@@ -10,7 +10,7 @@ async def upload_file(file: UploadFile = File(...)):
     contents = await file.read()
 
     try:
-        text = parse_file(contents, filename)
+        text = parser.parse_file(contents, filename)
     except ValueError as e:
         return JSONResponse(content={"error": str(e)}, status_code=400)
 
