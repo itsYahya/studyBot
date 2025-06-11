@@ -6,6 +6,16 @@ services:
       - default-net
     volumes:
       - './llm-engine/data:/data'
+  
+  backend:
+    build: ./backend
+    container_name: "backend"
+    networks:
+      - default-net
+    volumes:
+      - './backend/data:/data'
+    ports:
+      - 8000:8000
 
 networks:
   default-net:
