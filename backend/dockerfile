@@ -8,4 +8,6 @@ COPY ./src api
 
 RUN chmod +x ./script.sh
 
+RUN pip install -r requirements1.txt
+
 CMD [ "./script.sh" ]
