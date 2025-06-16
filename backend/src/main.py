@@ -6,6 +6,7 @@ from utils.checksum import calculate_checksum
 from utils.chunk_text import chunk_text
 from db.store_vector import store_chunks
 from db.store_vector import existing
+from tutor.summarize import summarize_document
 
 
 app = FastAPI()
@@ -40,3 +41,8 @@ async def upload_file(file: UploadFile = File(...)):
         "checksum": checksum,
         "chunks": len(chunks)
     }
+
+@app.get("/summarize/{checksum}")
+def summarize(checksum: str):
+    summary = summarize_document(checksum)
+    return {"summary": summary}
