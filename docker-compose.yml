@@ -2,10 +2,14 @@ services:
   llm:
     build: ./llm-engine
     container_name: "llm"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
     networks:
       - default-net
     volumes:
       - './llm-engine/data:/data'
+    ports:
+      - 11434:11434
   
   backend:
     build: ./backend
@@ -13,7 +17,7 @@ services:
     networks:
       - default-net
     volumes:
-      - './backend/data:/data'
+      - './backend/data:/chdb_data'
     ports:
       - 8000:8000
 
