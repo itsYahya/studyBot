@@ -18,6 +18,7 @@ services:
       - default-net
     volumes:
       - './backend/data:/chdb_data'
+      - './backend/src:/app/api'
     ports:
       - 8000:8000
 
