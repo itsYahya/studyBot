@@ -7,7 +7,13 @@ from utils.chunk_text import chunk_text
 from db.store_vector import store_chunks
 from db.store_vector import existing
 from tutor.summarize import summarize_document
+from db.get_files import get_files
+from db.store_vector import collection
+from tutor.question import ask
+from tutor.quiz import generate_quiz
+from models.ask_request import AskRequest
 
+model = SentenceTransformer("BAAI/bge-m3")
 
 app = FastAPI()
 
@@ -46,3 +52,19 @@ async def upload_file(file: UploadFile = File(...)):
 def summarize(checksum: str):
     summary = summarize_document(checksum)
     return {"summary": summary}
+
+@app.get("/files")
+def list_uploaded_files():
+    files = get_files(collection)
+
+    return files
+
+@app.post("/ask")
+def ask_question(data: AskRequest):
+    answer = ask(model, collection, data.checksum, data.question)
+    return answer
+
+@app.post("/quiz/{checksum}")
+def quiz(checksum: str):
+    res = generate_quiz(checksum, collection)
+    return res
