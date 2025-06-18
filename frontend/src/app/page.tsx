@@ -8,7 +8,7 @@ import {
   IconLayoutSidebarLeftCollapseFilled,
   IconMoodEmpty,
 } from '@tabler/icons-react';
-import { ChangeEvent, KeyboardEvent, useRef, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 type ConversationType = {
   message: string;
@@ -16,11 +16,12 @@ type ConversationType = {
 };
 
 export default function Home() {
+  const [filesArray, setFilesArray] = useState<File[]>([]);
   const [conversation, setConversation] = useState<ConversationType[]>([]);
   const [message, setMessage] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const [filesArray, setFilesArray] = useState<File[]>([]);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const addNewFile = () => {
     fileRef.current?.click();
@@ -53,6 +54,13 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [conversation]);
+
   return (
     <div className="w-screen h-[100dvh] flex flex-row relative bg-[#E1E2E1] overflow-hidden">
       <section className="lg:w-[70%] md:w-[50%] flex flex-col h-full w-full">
@@ -64,13 +72,13 @@ export default function Home() {
             <IconLayoutSidebarLeftCollapseFilled />
           </button>
         </section>
-        <div className="w-full h-[80%] py-5 md:px-14 px-5 overflow-auto">
+        <div ref={chatContainerRef} className="w-full h-[80%] py-5 md:px-14 px-5 overflow-auto scroll-smooth">
           {conversation.length > 0 ? (
             conversation.map((message, index) => (
               <div key={index} className={`chat ${message.right ? 'chat-start' : 'chat-end'}`}>
                 <div
                   className={`chat-bubble shadow-lg break-all ${
-                    message.right ? 'bg-[#34495E]' : 'bg-white text-black'
+                    message.right ? 'bg-[#34495E] text-white' : 'bg-white text-black'
                   }`}
                 >
                   {message.message}
