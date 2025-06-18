@@ -22,6 +22,16 @@ services:
     ports:
       - 8000:8000
 
+  frontend:
+    build: ./frontend
+    container_name: "frontend"
+    networks:
+      - default-net
+    volumes:
+      - './frontend/src:/app/'
+    ports:
+      - 5173:5173
+
 networks:
   default-net:
     driver: bridge
