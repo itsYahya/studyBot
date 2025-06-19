@@ -31,6 +31,7 @@ export default function Home() {
   const [fileLoader, setFileLoader] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDialogElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const addNewFile = () => {
@@ -97,7 +98,13 @@ export default function Home() {
     }
   };
 
-  const handleFileSummary = () => {};
+  const closeFileSummary = () => {
+    modalRef.current?.close();
+  };
+
+  const handleFileSummary = () => {
+    modalRef.current?.showModal();
+  };
 
   useEffect(() => {
     const container = chatContainerRef.current;
@@ -255,6 +262,15 @@ export default function Home() {
           </div>
         </section>
       </section>
+      <dialog ref={modalRef} className="modal">
+        <div className="modal-box bg-[#E1E2E1]">
+          <h3 onClick={() => closeFileSummary()} className="text-lg font-bold">
+            Hello!
+          </h3>
+          <p className="py-4">Press ESC key or click the button below to close</p>
+          <div className="modal-action"></div>
+        </div>
+      </dialog>
     </div>
   );
 }
