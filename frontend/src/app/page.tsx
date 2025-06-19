@@ -8,6 +8,7 @@ import {
   IconLayoutSidebarLeftCollapseFilled,
   IconMoodEmpty,
   IconFileInfo,
+  IconTemperature,
 } from '@tabler/icons-react';
 import axios from 'axios';
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
@@ -15,6 +16,8 @@ import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 type ConversationType = {
   message: string;
   right: boolean; // for set every message in different side (if you need to use another variable check like "assistent" or "user")
+  date: string;
+  id: string;
 };
 
 type FileResponseType = {
@@ -72,7 +75,7 @@ export default function Home() {
   const sendMessage = async () => {
     setLoading(true);
     if (message) {
-      setConversation((prev) => [...prev, { message: message, right: false }]);
+      setConversation((prev) => [...prev, { message: message, right: false, id: "", date: "" }]);
     }
     setMessage('');
     //await new Promise((r) => setTimeout(r, 2000));
@@ -86,7 +89,7 @@ export default function Home() {
         },
         timeout: 99999999 
       });
-    setConversation((prev) => [...prev, { message: res.data.answer, right: true }]); // just for test (use AI response)
+    setConversation((prev) => [...prev, { message: res.data.answer, right: true, id: "", date: "" }]); // just for test (use AI response)
     console.log(res.data)
     setLoading(false);
   };
@@ -118,15 +121,36 @@ export default function Home() {
       const response = await axios.get('http://localhost:8000/files');
       //console.log(response.data)
       const filenames = response.data.map((item: FileResponseType) => item.filename);
-      console.log(filenames);
       setFilesArray([...filenames]);
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error('Failed to load files:', error);
+    }
+  };
+
+  const getChatHistory = async () => {
+    try {
+      const payload = {
+        "page": 1,
+        "limit": 20
+      };
+
+      const response = await axios.post('http://localhost:8000/chat_history/', payload, {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        timeout: 99999999,
+      });
+      var res: ConversationType[] = Object.values(response.data.items)
+      const flipped: ConversationType[] = res.reverse()
+      setConversation(flipped)
+    } catch (error) {
+      console.error('failed to get chat history:', error);
     }
   };
 
   useEffect(() => {
     getFiles();
+    getChatHistory();
   }, []);
 
   return (
@@ -232,7 +256,7 @@ export default function Home() {
                   <h1 className="text-black font-semibold truncate">{file}</h1>
                   <button
                     onClick={() => handleFileSummary()}
-                    className="w-8 h-8 cursor-pointer -left-3 -bottom-3 flex justify-center items-center bg-[#FF3C2F] rounded-full absolute"
+                    className="w-8 h-8 cursor-pointer -left-3 -bottom-3 flex justify-center items-center text-white bg-[#FF3C2F] rounded-full absolute"
                   >
                     <IconFileInfo />
                   </button>
