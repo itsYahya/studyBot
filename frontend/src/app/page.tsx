@@ -7,6 +7,7 @@ import {
   IconLayoutSidebarRightCollapseFilled,
   IconLayoutSidebarLeftCollapseFilled,
   IconMoodEmpty,
+  IconFileInfo,
 } from '@tabler/icons-react';
 import axios from 'axios';
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
@@ -14,6 +15,12 @@ import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 type ConversationType = {
   message: string;
   right: boolean; // for set every message in different side (if you need to use another variable check like "assistent" or "user")
+};
+
+type FileResponseType = {
+  filename: string;
+  checksum: string;
+  file_type: string;
 };
 
 export default function Home() {
@@ -90,6 +97,8 @@ export default function Home() {
     }
   };
 
+  const handleFileSummary = () => {};
+
   useEffect(() => {
     const container = chatContainerRef.current;
     if (container) {
@@ -101,9 +110,9 @@ export default function Home() {
     try {
       const response = await axios.get('http://localhost:8000/files');
       //console.log(response.data)
-      const filenames = response.data.map((item: any) => item.filename);
+      const filenames = response.data.map((item: FileResponseType) => item.filename);
       console.log(filenames);
-      setFilesArray((prev) => [...filenames]);
+      setFilesArray([...filenames]);
     } catch (error) {
       console.error('Upload failed:', error);
     }
@@ -197,12 +206,12 @@ export default function Home() {
           </button>
         </section>
         <section className={`flex w-full flex-col items-center flex-grow h-[95%]`}>
-          <div className="flex flex-col w-full h-[90%] md:gap-4 gap-2 md:p-4 p-2 items-center overflow-auto">
+          <div className="flex flex-col w-full h-[90%] gap-4 md:p-4 p-2 items-center overflow-auto">
             {filesArray.length > 0 ? (
               filesArray.map((file, index) => (
                 <div
                   key={index}
-                  className="md:w-[70%] w-[90%] gap-1 h-20 min-h-20 shadow-md p-2 flex items-center rounded-xl bg-[#34495E]/10"
+                  className="md:w-[70%] w-[90%] relative gap-1 h-20 min-h-20 shadow-md p-2 flex items-center rounded-xl bg-[#34495E]/10"
                 >
                   <div className="h-full bg-[#34495E] text-white aspect-square flex justify-center items-center rounded-xl">
                     {file.split('.').pop()?.toLowerCase() === 'pdf' ? (
@@ -214,6 +223,12 @@ export default function Home() {
                     )}
                   </div>
                   <h1 className="text-black font-semibold truncate">{file}</h1>
+                  <button
+                    onClick={() => handleFileSummary()}
+                    className="w-8 h-8 cursor-pointer -left-3 -bottom-3 flex justify-center items-center bg-[#FF3C2F] rounded-full absolute"
+                  >
+                    <IconFileInfo />
+                  </button>
                 </div>
               ))
             ) : (
@@ -232,6 +247,7 @@ export default function Home() {
             />
             <button
               onClick={() => addNewFile()}
+              disabled={fileLoader}
               className="md:w-[70%] w-full rounded-xl cursor-pointer bg-[#FF3C2F] h-10 flex justify-center items-center"
             >
               {fileLoader ? <p className="spinner"></p> : 'Add new File'}
