@@ -20,6 +20,7 @@ export default function Home() {
   const [conversation, setConversation] = useState<ConversationType[]>([]);
   const [message, setMessage] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -39,12 +40,15 @@ export default function Home() {
     setMessage(event.target.value);
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
+    setLoading(true);
     if (message) {
       setConversation((prev) => [...prev, { message: message, right: false }]);
-      setConversation((prev) => [...prev, { message: 'hello', right: true }]); // just for test (use AI response)
+      setConversation((prev) => [...prev, { message: 'hello from AI: ' + message, right: true }]); // just for test (use AI response)
     }
     setMessage('');
+    await new Promise((r) => setTimeout(r, 2000));
+    setLoading(false);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -72,19 +76,38 @@ export default function Home() {
             <IconLayoutSidebarLeftCollapseFilled />
           </button>
         </section>
-        <div ref={chatContainerRef} className="w-full h-[80%] py-5 md:px-14 px-5 overflow-auto scroll-smooth">
+        <div
+          ref={chatContainerRef}
+          className="w-full h-[80%] py-5 md:px-14 px-5 overflow-auto scroll-smooth"
+        >
           {conversation.length > 0 ? (
-            conversation.map((message, index) => (
-              <div key={index} className={`chat ${message.right ? 'chat-start' : 'chat-end'}`}>
-                <div
-                  className={`chat-bubble shadow-lg break-all ${
-                    message.right ? 'bg-[#34495E] text-white' : 'bg-white text-black'
-                  }`}
-                >
-                  {message.message}
+            conversation.map((message, index) =>
+              !message.right ? (
+                <div key={index} className={`chat ${message.right ? 'chat-start' : 'chat-end'}`}>
+                  <div
+                    className={`chat-bubble shadow-lg break-all ${
+                      message.right ? 'bg-[#34495E] text-white' : 'bg-white text-black'
+                    }`}
+                  >
+                    {message.message}
+                  </div>
                 </div>
-              </div>
-            ))
+              ) : (
+                <div key={index} className={`chat ${message.right ? 'chat-start' : 'chat-end'}`}>
+                  <div
+                    className={`chat-bubble shadow-lg break-all ${
+                      message.right ? 'bg-[#34495E] text-white' : 'bg-white text-black'
+                    }`}
+                  >
+                    {loading && index === conversation.length - 1 ? (
+                      <p className="loader"></p>
+                    ) : (
+                      message.message
+                    )}
+                  </div>
+                </div>
+              )
+            )
           ) : (
             <div className="w-full h-full flex justify-center items-center">
               <IconMoodEmpty className="w-32 h-32 text-[#34495E]/50" />
