@@ -65,10 +65,21 @@ export default function Home() {
     setLoading(true);
     if (message) {
       setConversation((prev) => [...prev, { message: message, right: false }]);
-      setConversation((prev) => [...prev, { message: 'hello from AI: ' + message, right: true }]); // just for test (use AI response)
     }
     setMessage('');
-    await new Promise((r) => setTimeout(r, 2000));
+    //await new Promise((r) => setTimeout(r, 2000));
+    const payload = {
+      question: message,
+      checksum: "ee728f9144da5610925b9f0e876e56925f448619d667612b25b70b13bb47afcd"
+    };
+    const res = await axios.post('http://localhost:8000/ask/', payload, {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        timeout: 99999999 
+      });
+    setConversation((prev) => [...prev, { message: res.data.answer, right: true }]); // just for test (use AI response)
+    console.log(res.data)
     setLoading(false);
   };
 
