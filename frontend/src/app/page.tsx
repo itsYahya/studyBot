@@ -8,6 +8,7 @@ import {
   IconLayoutSidebarLeftCollapseFilled,
   IconMoodEmpty,
 } from '@tabler/icons-react';
+import axios from 'axios';
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 type ConversationType = {
@@ -16,10 +17,11 @@ type ConversationType = {
 };
 
 export default function Home() {
-  const [filesArray, setFilesArray] = useState<File[]>([]);
+  const [filesArray, setFilesArray] = useState<string[]>([]);
   const [conversation, setConversation] = useState<ConversationType[]>([]);
   const [message, setMessage] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
+  const [fileLoader, setFileLoader] = useState<boolean>(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -27,11 +29,30 @@ export default function Home() {
     fileRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    const newFiles = Array.from(files);
-    setFilesArray((prev) => [...prev, ...newFiles]);
+    const file = files[0];
+
+    const formData = new FormData();
+    formData.append('file', file);
+    setFileLoader(true);
+
+    try {
+      const response = await axios.post('http://localhost:8000/upload/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        timeout: 99999999 
+      });
+
+      if (response.data.chunks != undefined){
+        setFilesArray((prev) => [...prev, response.data.filename]);
+      }
+      setFileLoader(false)
+    } catch (error) {
+      console.error('Upload failed:', error);
+    }
     e.target.value = '';
   };
 
@@ -60,6 +81,22 @@ export default function Home() {
       container.scrollTop = container.scrollHeight;
     }
   }, [conversation]);
+
+  const getFiles = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/files')
+      //console.log(response.data)
+      const filenames = response.data.map((item: any) => ( item.filename ));
+      console.log(filenames)
+      setFilesArray((prev) => [ ...filenames]);
+    } catch (error) {
+      console.error('Upload failed:', error);
+    }
+  }
+
+  useEffect(() =>  {
+     getFiles()
+  }, [])
 
   return (
     <div className="w-screen h-[100dvh] flex flex-row relative bg-[#E1E2E1] overflow-hidden">
@@ -134,15 +171,15 @@ export default function Home() {
                   className="md:w-[70%] w-[90%] gap-1 h-20 min-h-20 shadow-md p-2 flex items-center rounded-xl bg-[#34495E]/10"
                 >
                   <div className="h-full bg-[#34495E] text-white aspect-square flex justify-center items-center rounded-xl">
-                    {file.name.split('.').pop()?.toLowerCase() === 'pdf' ? (
+                    {file.split('.').pop()?.toLowerCase() === 'pdf' ? (
                       <IconPdf className="w-8 h-8" />
-                    ) : file.name.split('.').pop()?.toLowerCase() === 'txt' ? (
+                    ) : file.split('.').pop()?.toLowerCase() === 'txt' ? (
                       <IconTxt className="w-8 h-8" />
                     ) : (
                       <IconFileWord className="w-8 h-8" />
                     )}
                   </div>
-                  <h1 className="text-black font-semibold truncate">{file.name}</h1>
+                  <h1 className="text-black font-semibold truncate">{file}</h1>
                 </div>
               ))
             ) : (
@@ -163,7 +200,7 @@ export default function Home() {
               onClick={() => addNewFile()}
               className="md:w-[70%] w-full rounded-xl cursor-pointer bg-[#FF3C2F] h-10 flex justify-center items-center"
             >
-              Add new File
+               { fileLoader ? "loading.." : "Add new File" }
             </button>
           </div>
         </section>
