@@ -42,15 +42,15 @@ export default function Home() {
     try {
       const response = await axios.post('http://localhost:8000/upload/', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
         },
-        timeout: 99999999 
+        timeout: 99999999,
       });
 
-      if (response.data.chunks != undefined){
+      if (response.data.chunks != undefined) {
         setFilesArray((prev) => [...prev, response.data.filename]);
       }
-      setFileLoader(false)
+      setFileLoader(false);
     } catch (error) {
       console.error('Upload failed:', error);
     }
@@ -88,19 +88,19 @@ export default function Home() {
 
   const getFiles = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/files')
+      const response = await axios.get('http://localhost:8000/files');
       //console.log(response.data)
-      const filenames = response.data.map((item: any) => ( item.filename ));
-      console.log(filenames)
-      setFilesArray((prev) => [ ...filenames]);
+      const filenames = response.data.map((item: any) => item.filename);
+      console.log(filenames);
+      setFilesArray((prev) => [...filenames]);
     } catch (error) {
       console.error('Upload failed:', error);
     }
-  }
+  };
 
-  useEffect(() =>  {
-     getFiles()
-  }, [])
+  useEffect(() => {
+    getFiles();
+  }, []);
 
   return (
     <div className="w-screen h-[100dvh] flex flex-row relative bg-[#E1E2E1] overflow-hidden">
@@ -223,7 +223,7 @@ export default function Home() {
               onClick={() => addNewFile()}
               className="md:w-[70%] w-full rounded-xl cursor-pointer bg-[#FF3C2F] h-10 flex justify-center items-center"
             >
-               { fileLoader ? "loading.." : "Add new File" }
+              {fileLoader ? <p className="spinner"></p> : 'Add new File'}
             </button>
           </div>
         </section>
