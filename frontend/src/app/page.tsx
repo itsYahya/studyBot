@@ -30,6 +30,7 @@ export default function Home() {
   const [filesArray, setFilesArray] = useState<string[]>([]);
   const [conversation, setConversation] = useState<ConversationType[]>([]);
   const [message, setMessage] = useState<string>('');
+  const [response, setRespose] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
   const [fileLoader, setFileLoader] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
@@ -73,12 +74,13 @@ export default function Home() {
   };
 
   const sendMessage = async () => {
+    setRespose("")
     setLoading(true);
     if (message) {
       setConversation((prev) => [...prev, { message: message, right: false, id: "", date: "" }]);
+      setConversation((prev) => [...prev, { message: "", right: true, id: "", date: "" }]);
     }
     setMessage('');
-    //await new Promise((r) => setTimeout(r, 2000));
     const payload = {
       question: message,
       checksum: "ee728f9144da5610925b9f0e876e56925f448619d667612b25b70b13bb47afcd"
@@ -89,8 +91,7 @@ export default function Home() {
         },
         timeout: 99999999 
       });
-    setConversation((prev) => [...prev, { message: res.data.answer, right: true, id: "", date: "" }]); // just for test (use AI response)
-    console.log(res.data)
+    setConversation((prev) => [...prev.slice(0, -1), { message: res.data.answer, right: true, id: "", date: "" }]);
     setLoading(false);
   };
 
