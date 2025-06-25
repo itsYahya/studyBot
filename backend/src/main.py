@@ -94,7 +94,7 @@ async def get_items(payload: PaginationRequest):
     limit = min(max(payload.limit, 1), 20)
 
     skip = (page - 1) * limit
-    cursor = chat_history.find({}).skip(skip).limit(limit)
+    cursor = chat_history.find({}).sort([("_id", -1)]).skip(skip).limit(limit)
 
     items = [serialize_item(doc) async for doc in cursor]
     total = await chat_history.count_documents({})
