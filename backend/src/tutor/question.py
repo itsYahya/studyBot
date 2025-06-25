@@ -7,7 +7,6 @@ def ask(model, collection, checksum, question):
     result = collection.query(
         query_embeddings=[question_embedding],
         n_results=5,
-        where={"checksum": checksum},
         include=["documents"]
     )
     chunks = result["documents"][0]
