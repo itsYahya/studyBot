@@ -76,11 +76,11 @@ def list_uploaded_files():
 
 @app.post("/ask")
 async def ask_question(data: AskRequest):
-    result = await chat_history.insert_one(ChatMsg(right = True, message = data.question, date = str(datetime.now())).dict())
+    result = await chat_history.insert_one(ChatMsg(right = False, message = data.question, date = str(datetime.now())).dict())
     id = await questions.insert_one(data.dict())
-    #answer = ask(model, collection, data.checksum, data.question)
-    result = await chat_history.insert_one(ChatMsg(right = False, message = "this is the bot answer!", date = str(datetime.now())).dict())
-    return {"answer": str(result.inserted_id)}
+    answer = ask(model, collection, data.checksum, data.question)
+    result = await chat_history.insert_one(ChatMsg(right = True, message = answer, date = str(datetime.now())).dict())
+    return {"answer": answer}
 
 @app.post("/quiz/{checksum}")
 def quiz(checksum: str):
